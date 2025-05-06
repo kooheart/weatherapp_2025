@@ -35,16 +35,20 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import np.com.bimalkafle.realtimeweather.api.NetworkResponse
 import np.com.bimalkafle.realtimeweather.api.WeatherModel
+import android.content.Intent
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
+import np.com.bimalkafle.realtimeweather.LoginActivity
 
 @Composable
 fun WeatherPage(viewModel: WeatherViewModel) {
-    
+
+    val context = LocalContext.current
     var city by remember {
         mutableStateOf("")
     }
 
     val weatherResult = viewModel.weatherResult.observeAsState()
-
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
@@ -53,6 +57,24 @@ fun WeatherPage(viewModel: WeatherViewModel) {
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        // 🔒 Logout Button Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Button(onClick = {
+                val intent = Intent(context, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                context.startActivity(intent)
+            }) {
+                Text(text = "Logout")
+            }
+        }
+
+        // 🔍 Search UI
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,9 +84,9 @@ fun WeatherPage(viewModel: WeatherViewModel) {
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = city, 
+                value = city,
                 onValueChange = {
-                city = it
+                    city = it
                 },
                 label = {
                     Text(text = "Search for any location")
@@ -74,14 +96,15 @@ fun WeatherPage(viewModel: WeatherViewModel) {
                 viewModel.getData(city)
                 keyboardController?.hide()
             }) {
-                Icon(imageVector = Icons.Default.Search,
+                Icon(
+                    imageVector = Icons.Default.Search,
                     contentDescription = "Search for any location"
                 )
             }
-
         }
 
-        when(val result = weatherResult.value){
+        // 🌤 Weather Result
+        when (val result = weatherResult.value) {
             is NetworkResponse.Error -> {
                 Text(text = result.message)
             }
@@ -92,9 +115,9 @@ fun WeatherPage(viewModel: WeatherViewModel) {
                 WeatherDetails(data = result.data)
             }
             null -> {
+                // Empty state
             }
         }
-
     }
 }
 
@@ -119,7 +142,6 @@ fun WeatherDetails(data : WeatherModel) {
             )
             Text(text = data.location.name, fontSize = 30.sp)
             Spacer(modifier = Modifier.width(8.dp))
-            Text(text = data.location.country, fontSize = 18.sp, color = Color.Gray)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

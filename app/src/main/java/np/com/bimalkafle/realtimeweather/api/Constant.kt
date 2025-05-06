@@ -2,5 +2,5 @@ package np.com.bimalkafle.realtimeweather.api
 
 object Constant {
 
-    val apiKey = "b71524e8d69240a7a5e171356250505"
+    val apiKey = "860d4463f26741f295373916250605"
 }
