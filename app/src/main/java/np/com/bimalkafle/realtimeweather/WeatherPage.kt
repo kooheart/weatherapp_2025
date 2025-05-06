@@ -61,7 +61,7 @@ import np.com.bimalkafle.realtimeweather.LoginActivity
 fun WeatherPage(viewModel: WeatherViewModel) {
 
     val context = LocalContext.current
-    var city ="Delhi, India"
+    var city by remember { mutableStateOf("Delhi, India") }
 
 
     val weatherResult = viewModel.weatherResult.observeAsState()
@@ -76,6 +76,7 @@ fun WeatherPage(viewModel: WeatherViewModel) {
         }
     }
 
+    // Fetch default weather for "Delhi" on first load
     LaunchedEffect(Unit) {
         viewModel.getData(city)
     }
