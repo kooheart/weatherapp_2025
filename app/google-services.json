@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "605491817647",
+    "project_id": "mcproject-9291e",
+    "storage_bucket": "mcproject-9291e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605491817647:android:c1d690bc611c575e4b785a",
+        "android_client_info": {
+          "package_name": "com.example.weatherappproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJqRA6Z1w7dotasODrLaqBvEr5BFlhK0o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605491817647:android:3a250a2ff2f1c79d4b785a",
+        "android_client_info": {
+          "package_name": "np.com.bimalkafle.realtimeweather"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJqRA6Z1w7dotasODrLaqBvEr5BFlhK0o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
