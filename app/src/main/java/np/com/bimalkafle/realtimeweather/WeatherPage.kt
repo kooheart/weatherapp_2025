@@ -61,7 +61,7 @@ import np.com.bimalkafle.realtimeweather.LoginActivity
 fun WeatherPage(viewModel: WeatherViewModel) {
 
     val context = LocalContext.current
-    var city by remember { mutableStateOf("Delhi, India") }
+    var city ="Delhi, India"
 
 
     val weatherResult = viewModel.weatherResult.observeAsState()
@@ -76,7 +76,6 @@ fun WeatherPage(viewModel: WeatherViewModel) {
         }
     }
 
-    // Fetch default weather for "Delhi" on first load
     LaunchedEffect(Unit) {
         viewModel.getData(city)
     }
@@ -274,8 +273,8 @@ fun WeatherDetails(data : WeatherModel) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                   WeatherKeyVal("Humidity",data.current.humidity)
-                   WeatherKeyVal("Wind Speed",data.current.wind_kph+" km/h")
+                    WeatherKeyVal("Humidity",data.current.humidity)
+                    WeatherKeyVal("Wind Speed",data.current.wind_kph+" km/h")
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -310,17 +309,3 @@ fun WeatherKeyVal(key : String, value : String) {
         Text(text = key, fontWeight = FontWeight.SemiBold, color = Color.Gray)
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
