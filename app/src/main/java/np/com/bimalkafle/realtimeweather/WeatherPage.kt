@@ -38,18 +38,48 @@ import np.com.bimalkafle.realtimeweather.api.WeatherModel
 import android.content.Intent
 import androidx.compose.material3.Button
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material3.ButtonDefaults
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.compose.runtime.LaunchedEffect
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import android.util.Log
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+
 import np.com.bimalkafle.realtimeweather.LoginActivity
 
 @Composable
 fun WeatherPage(viewModel: WeatherViewModel) {
 
     val context = LocalContext.current
-    var city by remember {
-        mutableStateOf("")
-    }
+    var city by remember { mutableStateOf("Delhi, India") }
+
 
     val weatherResult = viewModel.weatherResult.observeAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Permission launcher for POST_NOTIFICATIONS
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Log.d("WeatherPage", "Notification permission denied")
+        }
+    }
+
+    // Fetch default weather for "Delhi" on first load
+    LaunchedEffect(Unit) {
+        viewModel.getData(city)
+    }
 
     Column(
         modifier = Modifier
@@ -57,6 +87,14 @@ fun WeatherPage(viewModel: WeatherViewModel) {
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Display current date
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+        Text(
+            text = "Weather for $city - $currentDate",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
+        )
 
         // 🔒 Logout Button Row
         Row(
@@ -118,9 +156,73 @@ fun WeatherPage(viewModel: WeatherViewModel) {
                 // Empty state
             }
         }
+
+        Button(
+            onClick = {
+                // Check if POST_NOTIFICATIONS permission is granted
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // Request permission if not granted
+                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    // Permission is granted, proceed with showing the notification
+                    viewModel.getWeatherForNotification(city) { weatherInfo ->
+                        Log.d("WeatherPage", "Weather info fetched: $weatherInfo") // Debug log
+                        if (weatherInfo.isNotEmpty()) {
+                            showTestNotification(
+                                context = context,
+                                title = "Current Weather",
+                                message = weatherInfo
+                            )
+                        } else {
+                            showTestNotification(
+                                context = context,
+                                title = "Weather Notification",
+                                message = "Failed to fetch weather data"
+                            )
+                        }
+                    }
+                }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+        ) {
+            Text(text = "Test Notification", color = Color.White)
+        }
     }
 }
 
+fun showTestNotification(context: Context, title: String, message: String) {
+    val channelId = "weather_notification_channel"
+    val notificationId = 1001
+
+    // Create a notification channel for Android 8.0+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            channelId,
+            "Weather Notifications",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    // Build and display the notification
+    val notification = NotificationCompat.Builder(context, channelId)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setContentTitle(title)
+        .setContentText(message)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setAutoCancel(true)
+        .build()
+
+    NotificationManagerCompat.from(context).notify(notificationId, notification)
+    Log.d("WeatherPage", "Notification displayed: $title - $message") // Debug log
+}
 
 @Composable
 fun WeatherDetails(data : WeatherModel) {

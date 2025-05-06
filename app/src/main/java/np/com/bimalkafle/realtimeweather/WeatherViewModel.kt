@@ -37,6 +37,24 @@ class WeatherViewModel :ViewModel() {
 
         }
     }
+    fun getWeatherForNotification(city: String, callback: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = weatherApi.getWeather(Constant.apiKey, city)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        val temp = it.current.temp_c
+                        val condition = it.current.condition.text
+                        callback("Temperature: $temp°C, Condition: $condition")
+                    } ?: callback("No weather data available")
+                } else {
+                    callback("Failed to fetch weather data")
+                }
+            } catch (e: Exception) {
+                callback("Error: ${e.message}")
+            }
+        }
+    }
 
 }
 
